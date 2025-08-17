@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  be:
+    image: ${IMAGE_VERSION}
+    networks:
+      - code-overlay
+    env_file:
+      - ./development.env
+    deploy:
+      replicas: 1
+      restart_policy: 
+        condition: on-failure
+
+networks:
+  code-overlay:
+    external: true
+
+# secrets:
+#   dev-soundbox_be-secret:
+#     external: true
