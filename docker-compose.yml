@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    env_file:
+      - ./backend/deploy/development.env
+    ports:
+      - "5001:5001"
+    networks:
+      - code-overlay
+    depends_on:
+      - mongodb
+    restart: on-failure
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/foodsecurity
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:8888"
+    networks:
+      - code-overlay
+    restart: on-failure
+
+  llama:
+    build: ./Llama
+    container_name: llama
+    ports:
+      - "5000:5000"
+    networks:
+      - code-overlay
+    restart: on-failure
+
+  map:
+    build: ./streamlit-map
+    container_name: map
+    ports:
+      - "5002:8501"
+    networks:
+      - code-overlay
+    restart: on-failure
+    command: ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - code-overlay
+    volumes:
+      - mongo_data:/data/db
+
+networks:
+  code-overlay:
+    driver: bridge
+
+volumes:
+  mongo_data:
+
